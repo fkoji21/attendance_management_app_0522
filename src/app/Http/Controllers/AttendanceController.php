@@ -10,7 +10,27 @@ class AttendanceController extends Controller
 {
     public function index()
     {
-        return view('attendance.index');
+        $attendance = Attendance::with('breakTimes')
+            ->where('user_id', Auth::id())
+            ->whereDate('date', today())
+            ->first();
+
+        $status = null;
+
+        if ($attendance) {
+            $latestBreak = $attendance->breakTimes->last();
+
+            if ($latestBreak && is_null($latestBreak->break_end)) {
+                $status = 'on_break';
+            } elseif (is_null($attendance->clock_out)) {
+                $status = 'working';
+            } else {
+                $status = 'finished';
+            }
+        }
+
+        return view('attendance.index', compact('attendance', 'status'));
+
     }
 
     public function start()

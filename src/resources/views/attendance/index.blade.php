@@ -9,49 +9,56 @@
             $latestBreak = $attendance->breakTimes->last();
         @endphp
 
-        @if ($latestBreak && is_null($latestBreak->break_end))
-            <p class="text-danger fw-bold">休憩中です</p>
-        @endif
+        <div class="status-label">
+            @if ($status === 'none')
+                <span class="badge bg-secondary">勤務外</span>
+            @elseif ($status === 'working')
+                <span class="badge bg-success">出勤中</span>
+            @elseif ($status === 'on_break')
+                <span class="badge bg-warning text-dark">休憩中</span>
+            @elseif ($status === 'finished')
+                <span class="badge bg-dark">退勤済</span>
+            @endif
+        </div>
 
-        {{-- 現在の日時 --}}
-        <p>現在時刻：<span id="current-time"></span></p>
-
-        {{-- ステータス表示（ダミー） --}}
-        <p>現在のステータス：<strong>勤務外</strong></p>
+        <!-- 日付と時刻表示（共通） -->
+        <div class="text-center my-4">
+            <h2>{{ now()->format('Y年n月j日（D）') }}</h2>
+            <h1>{{ now()->format('H:i') }}</h1>
+        </div>
 
         @if (session('message'))
         <div class="alert alert-success">{{ session('message') }}</div>
         @endif
 
-        {{-- 勤怠ボタン群（仮表示） --}}
-        <div class="btn-group" role="group">
+        <!-- 状態に応じたボタン表示 -->
+        <div class="text-center mt-4">
+            @if ($status === 'none')
+                <form method="POST" action="{{ route('attendance.start') }}">
+                    @csrf
+                    <button class="btn btn-dark btn-lg">出勤</button>
+                </form>
 
-        {{-- 出勤 --}}
-        <form method="POST" action="{{ route('attendance.start') }}" style="display:inline;">
-            @csrf
-            <button class="btn btn-success">出勤</button>
-        </form>
+            @elseif ($status === 'working')
+                <form method="POST" action="{{ route('attendance.clockOut') }}" class="d-inline">
+                    @csrf
+                    <button class="btn btn-dark btn-lg me-3">退勤</button>
+                </form>
+                <form method="POST" action="{{ route('attendance.break.start') }}" class="d-inline">
+                    @csrf
+                    <button class="btn btn-outline-dark btn-lg">休憩入</button>
+                </form>
 
-        {{-- 休憩開始 --}}
-        <form method="POST" action="{{ route('attendance.break.start') }}" style="display:inline;">
-            @csrf
-            <button class="btn btn-warning">休憩開始</button>
-        </form>
+            @elseif ($status === 'on_break')
+                <form method="POST" action="{{ route('attendance.break.end') }}">
+                    @csrf
+                    <button class="btn btn-outline-dark btn-lg">休憩戻</button>
+                </form>
 
-        {{-- 休憩終了 --}}
-        <form method="POST" action="{{ route('attendance.break.end') }}" style="display:inline;">
-            @csrf
-            <button class="btn btn-info">休憩終了</button>
-        </form>
-
-        {{-- 退勤（出勤中のみ） --}}
-        @if ($status === '出勤中')
-        <form method="POST" action="{{ route('attendance.clockOut') }}" style="display:inline;">
-            @csrf
-            <button class="btn btn-danger">退勤</button>
-        </form>
-        @endif
-    </div>
+            @elseif ($status === 'finished')
+                <p class="fs-4 mt-4">お疲れ様でした。</p>
+            @endif
+        </div>
 
     </div>
 
