@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\LoginViewResponse;
+use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Contracts\RegisterViewResponse;
 use Laravel\Fortify\Fortify;
 
@@ -42,6 +43,16 @@ class FortifyServiceProvider extends ServiceProvider
             };
         });
 
+        $this->app->singleton(RegisterResponse::class, function () {
+            return new class implements RegisterResponse
+            {
+                public function toResponse($request)
+                {
+                    return redirect('/attendance');
+                }
+            };
+        });
+
     }
 
     /**
@@ -63,5 +74,6 @@ class FortifyServiceProvider extends ServiceProvider
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
+
     }
 }
