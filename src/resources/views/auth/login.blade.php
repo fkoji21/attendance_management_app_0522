@@ -1,7 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head><title>ログイン</title></head>
-<body>
+@extends('layouts.app')
+
+@section('title', 'ログイン')
+
+@section('content')
+
     <h1>ログインページ</h1>
     <form method="POST" action="/login">
         @csrf
@@ -9,5 +11,5 @@
         <input type="password" name="password" placeholder="パスワード"><br>
         <button type="submit">ログイン</button>
     </form>
-</body>
-</html>
+
+@endsection

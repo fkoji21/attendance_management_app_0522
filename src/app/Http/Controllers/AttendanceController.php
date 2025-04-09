@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +16,7 @@ class AttendanceController extends Controller
             ->whereDate('date', today())
             ->first();
 
-        $status = null;
+        $status = 'none';
 
         if ($attendance) {
             $latestBreak = $attendance->breakTimes->last();
@@ -108,6 +109,43 @@ class AttendanceController extends Controller
         }
 
         return back()->with('message', '休憩を終了しました');
+    }
+
+    public function monthly(Request $request)
+    {
+        $user = Auth::user();
+
+        // クエリパラメータで月指定（例：?month=2025-04）、なければ今月
+        $month = $request->query('month', Carbon::now()->format('Y-m'));
+        $startOfMonth = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+        $endOfMonth = Carbon::createFromFormat('Y-m', $month)->endOfMonth();
+
+        // 勤怠データをその月の範囲で取得
+        $attendances = Attendance::with('breakTimes')
+            ->where('user_id', $user->id)
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->orderBy('date', 'asc')
+            ->get();
+
+        return view('attendance.list', [
+            'attendances' => $attendances,
+            'currentMonth' => $startOfMonth,
+            'prevMonth' => $startOfMonth->copy()->subMonth()->format('Y-m'),
+            'nextMonth' => $startOfMonth->copy()->addMonth()->format('Y-m'),
+        ]);
+    }
+
+    public function show(Attendance $attendance)
+    {
+        // 自分以外の勤怠は見れないように制限
+        if ($attendance->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $attendance->load('user', 'breakTimes');
+        $breakTimes = $attendance->breakTimes;
+
+        return view('attendance.show', compact('attendance', 'breakTimes'));
     }
 
 }

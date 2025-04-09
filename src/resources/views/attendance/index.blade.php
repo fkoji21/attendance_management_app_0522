@@ -6,7 +6,7 @@
     <div class="container">
         <h1>勤怠打刻画面</h1>
         @php
-            $latestBreak = $attendance->breakTimes->last();
+            $latestBreak = $attendance?->breakTimes->last();
         @endphp
 
         <div class="status-label">

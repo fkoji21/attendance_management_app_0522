@@ -50,7 +50,7 @@
             <div class="collapse navbar-collapse justify-content-end">
                 <ul class="navbar-nav">
                     <li class="nav-item"><a class="nav-link" href="{{ route('attendance.index') }}">勤怠</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">勤怠一覧</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('attendance.monthly') }}">勤怠一覧</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">申請</a></li>
                     <li class="nav-item">
                         <form method="POST" action="{{ route('logout') }}">
