@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\AttendanceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -148,4 +149,31 @@ class AttendanceController extends Controller
         return view('attendance.show', compact('attendance', 'breakTimes'));
     }
 
+    public function requestEdit(Request $request, Attendance $attendance)
+    {
+        if ($attendance->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // バリデーション（仮）
+        $request->validate([
+            'clock_in' => 'required|date_format:H:i',
+            'clock_out' => 'required|date_format:H:i|after:clock_in',
+            'note' => 'required|string',
+        ], [
+            'clock_in.required' => '出勤時間を入力してください',
+            'clock_out.required' => '退勤時間を入力してください',
+            'clock_out.after' => '退勤時間は出勤時間より後である必要があります',
+            'note.required' => '備考を記入してください',
+        ]);
+
+        AttendanceRequest::create([
+            'attendance_id' => $attendance->id,
+            'requested_clock_in' => $request->clock_in,
+            'requested_clock_out' => $request->clock_out,
+            'requested_note' => $request->note,
+        ]);
+
+        return redirect()->route('attendance.show', $attendance)->with('message', '修正申請を送信しました');
+    }
 }

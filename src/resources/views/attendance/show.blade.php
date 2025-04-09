@@ -9,9 +9,24 @@
     <div class="mb-4">
         <p><strong>名前：</strong> {{ $attendance->user->name ?? '不明' }}</p>
         <p><strong>日付：</strong> {{ \Carbon\Carbon::parse($attendance->date)->format('Y年m月d日 (D)') }}</p>
-        <p><strong>出勤：</strong> {{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '-' }}</p>
-        <p><strong>退勤：</strong> {{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '-' }}</p>
-        <p><strong>備考：</strong> {{ $attendance->note ?? '（未記入）' }}</p>
+        <form action="{{ route('attendance.request.edit', $attendance->id) }}" method="POST">
+            @csrf
+            <div class="mb-3">
+                <label>出勤時刻</label>
+                <input type="time" name="clock_in" class="form-control" value="{{ \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') }}">
+            </div>
+
+            <div class="mb-3">
+                <label>退勤時刻</label>
+                <input type="time" name="clock_out" class="form-control" value="{{ \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') }}">
+            </div>
+
+            <div class="mb-3">
+                <label>備考</label>
+                <textarea name="note" class="form-control">{{ $attendance->note }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">修正申請する</button>
+        </form>
     </div>
 
     <h5>休憩記録</h5>
