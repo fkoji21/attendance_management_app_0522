@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\RequestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,5 +24,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendances', [AttendanceController::class, 'monthly'])->name('attendance.monthly');
     Route::get('/attendances/{attendance}', [AttendanceController::class, 'show'])->name('attendance.show');
     Route::post('/attendances/{attendance}/request-edit', [AttendanceController::class, 'requestEdit'])->name('attendance.request.edit');
+    Route::get('/requests', [AttendanceController::class, 'requestList'])->name('attendance.requests');
+    Route::get('/requests/{request}', [RequestController::class, 'show'])->name('request.show');
 
+});
+
+Route::middleware(['auth', 'can:admin'])->group(function () {
+    Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
+    Route::post('/requests/{request}/approve', [RequestController::class, 'approve'])->name('requests.approve');
 });
