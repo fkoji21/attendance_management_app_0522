@@ -14,7 +14,7 @@
         </div>
 
         {{-- 勤怠テーブル --}}
-        <table class="table table-bordered text-center align-middle bg-white shadow-sm">
+        <table class="table table-bordered text-center align-middle bg-white">
             <thead class="table-light">
                 <tr>
                     <th>日付</th>

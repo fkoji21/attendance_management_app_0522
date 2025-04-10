@@ -1,8 +1,10 @@
 @extends('layouts.app')
 
+@section('title', '修正申請一覧')
+
 @section('content')
 <div class="container">
-    <h2 class="mb-4">修正申請一覧</h2>
+    <h2 class="mb-4">修正申請一覧（管理者）</h2>
 
     {{-- 承認待ち --}}
     <h4 class="text-danger">承認待ち</h4>
@@ -22,10 +24,12 @@
                 <tr>
                     <td><span class="badge bg-warning text-dark">承認待ち</span></td>
                     <td>{{ $request->attendance->user->name }}</td>
-                    <td>{{ $request->attendance->date->format('Y/m/d') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($request->attendance->date)->format('Y/m/d') }}</td>
                     <td>{{ $request->requested_note }}</td>
                     <td>{{ $request->created_at->format('Y/m/d') }}</td>
-                    <td><a href="{{ route('requests.show', $request) }}">詳細</a></td>
+                    <td>
+                        <a href="{{ route('requests.show', $request->id) }}" class="btn btn-sm btn-outline-primary">詳細</a>
+                    </td>
                 </tr>
             @empty
                 <tr><td colspan="6">承認待ちの申請はありません。</td></tr>
@@ -51,10 +55,12 @@
                 <tr>
                     <td><span class="badge bg-success">承認済み</span></td>
                     <td>{{ $request->attendance->user->name }}</td>
-                    <td>{{ $request->attendance->date->format('Y/m/d') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($request->attendance->date)->format('Y/m/d') }}</td>
                     <td>{{ $request->requested_note }}</td>
                     <td>{{ $request->created_at->format('Y/m/d') }}</td>
-                    <td><a href="{{ route('requests.show', $request) }}">詳細</a></td>
+                    <td>
+                        <a href="{{ route('requests.show', $request->id) }}" class="btn btn-sm btn-outline-secondary">詳細</a>
+                    </td>
                 </tr>
             @empty
                 <tr><td colspan="6">承認済みの申請はまだありません。</td></tr>

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\AttendanceRequest;
-use Illuminate\Support\Facades\Auth;
 
 class RequestController extends Controller
 {
@@ -19,30 +19,22 @@ class RequestController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return view('requests.index', compact('pendingRequests', 'approvedRequests'));
+        return view('admin.requests.index', compact('pendingRequests', 'approvedRequests'));
     }
 
     public function show(AttendanceRequest $request)
     {
-        // 自分以外の修正申請は見れないように制限
-        if ($request->attendance->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $request->load(['attendance.user']);
 
-        // Eager Load を明示
-        $request->load('attendance');
-
-        return view('requests.show', compact('request'));
+        return view('admin.requests.show', compact('request'));
     }
 
     public function approve(AttendanceRequest $request)
     {
-        // すでに承認済みの場合は何もしない
         if ($request->is_approved) {
             return back()->with('message', 'すでに承認済みです');
         }
 
-        // 勤怠情報を更新
         $attendance = $request->attendance;
         $attendance->update([
             'clock_in' => $request->requested_clock_in,
@@ -50,10 +42,8 @@ class RequestController extends Controller
             'note' => $request->requested_note,
         ]);
 
-        // 承認済みに変更
         $request->update(['is_approved' => true]);
 
         return redirect()->route('requests.index')->with('message', '承認が完了しました');
     }
-
 }
