@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceRequest;
+use Carbon\Carbon;
 
 class RequestController extends Controller
 {
@@ -37,8 +38,8 @@ class RequestController extends Controller
 
         $attendance = $request->attendance;
         $attendance->update([
-            'clock_in' => $request->requested_clock_in,
-            'clock_out' => $request->requested_clock_out,
+            'clock_in' => Carbon::parse($attendance->date . ' ' . $request->requested_clock_in),
+            'clock_out' => Carbon::parse($attendance->date . ' ' . $request->requested_clock_out),
             'note' => $request->requested_note,
         ]);
 

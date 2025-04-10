@@ -191,4 +191,5 @@ class AttendanceController extends Controller
 
         return view('attendance.requests', compact('pending', 'approved'));
     }
+
 }

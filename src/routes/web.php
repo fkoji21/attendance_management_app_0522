@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\RequestController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AttendanceController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,7 +38,11 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware(['auth', 'can:admin'])->group(function () {
+    Route::get('/admin/attendances', [AdminAttendanceController::class, 'daily'])->name('admin.attendance.daily');
+    Route::get('/users/{user}/monthly', [UserController::class, 'showMonthlyAttendance'])->name('admin.users.monthly');
+    Route::get('/users/{user}/monthly/export', [UserController::class, 'exportMonthlyCsv'])->name('admin.users.monthly.export');
     Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/requests/{request}', [RequestController::class, 'show'])->name('requests.show');
     Route::post('/requests/{request}/approve', [RequestController::class, 'approve'])->name('requests.approve');
 });
