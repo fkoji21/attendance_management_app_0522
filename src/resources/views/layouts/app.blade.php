@@ -51,7 +51,9 @@
                 <ul class="navbar-nav">
                     <li class="nav-item"><a class="nav-link" href="{{ route('attendance.index') }}">勤怠</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('attendance.monthly') }}">勤怠一覧</a></li>
+                    @auth
                     <li class="nav-item"><a class="nav-link" href="{{route('attendance.requests')}}">申請</a></li>
+                    @endauth
                     <li class="nav-item">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

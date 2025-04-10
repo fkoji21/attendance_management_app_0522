@@ -24,7 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendances', [AttendanceController::class, 'monthly'])->name('attendance.monthly');
     Route::get('/attendances/{attendance}', [AttendanceController::class, 'show'])->name('attendance.show');
     Route::post('/attendances/{attendance}/request-edit', [AttendanceController::class, 'requestEdit'])->name('attendance.request.edit');
-    Route::get('/requests', [AttendanceController::class, 'requestList'])->name('attendance.requests');
+    Route::get('/my-requests', [AttendanceController::class, 'requestList'])->name('attendance.requests');
     Route::get('/requests/{request}', [RequestController::class, 'show'])->name('request.show');
 
 });
