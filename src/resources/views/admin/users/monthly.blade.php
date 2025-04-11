@@ -41,7 +41,14 @@
                             }) / 60
                         }}:00
                     </td>
-                    <td><a href="#">詳細</a></td>
+                    <td>
+                        @php
+                            $route = Auth::user()->is_admin
+                                ? route('admin.attendance.show', $attendance->id)
+                                : route('attendance.show', $attendance->id);
+                        @endphp
+                        <a class="btn btn-outline-primary btn-sm" href="{{ $route }}">詳細</a>
+                    </td>
                 </tr>
             @endforeach
         </tbody>

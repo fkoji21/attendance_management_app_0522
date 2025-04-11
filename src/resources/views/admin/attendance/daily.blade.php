@@ -41,7 +41,7 @@
                            }) / 60
                         }}:00
                     </td>
-                    <td><a href="{{ route('admin.attendance.show', ['attendance' => $attendance->id]) }}">詳細</a></td>
+                    <td><a class="btn btn-outline-primary btn-sm" href="{{ route('admin.attendance.show', ['attendance' => $attendance->id]) }}">詳細</a></td>
                 </tr>
             @endforeach
         </tbody>
