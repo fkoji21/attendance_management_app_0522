@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\App;
@@ -20,18 +21,8 @@ class AuthenticatedSessionController extends Controller
         return App::make(LoginViewResponse::class);
     }
 
-    public function store(Request $request): LoginResponse
+    public function store(LoginRequest $request): LoginResponse
     {
-        //カスタムバリデーション（日本語）
-        $request->validate([
-            Fortify::username() => ['required', 'email'],
-            'password' => ['required'],
-        ], [
-            'email.required' => 'メールアドレスを入力してください',
-            'email.email' => 'メールアドレスは「ユーザー名@ドメイン」形式で入力してください',
-            'password.required' => 'パスワードを入力してください',
-        ]);
-
         app(EnsureLoginIsNotThrottled::class)($request);
 
         $user = app(AttemptToAuthenticate::class)($request);
