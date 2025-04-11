@@ -44,5 +44,6 @@ Route::middleware(['auth', 'can:admin'])->group(function () {
     Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/requests/{request}', [RequestController::class, 'show'])->name('requests.show');
+    Route::get('/admin/attendances/{attendance}', [AdminAttendanceController::class, 'show'])->name('admin.attendance.show');
     Route::post('/requests/{request}/approve', [RequestController::class, 'approve'])->name('requests.approve');
 });

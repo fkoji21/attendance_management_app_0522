@@ -30,4 +30,11 @@ class AttendanceController extends Controller
             'nextDate' => Carbon::parse($date)->addDay()->toDateString(),
         ]);
     }
+
+    public function show(Attendance $attendance)
+    {
+        $attendance->load('user', 'breakTimes');
+        return view('admin.attendance.show', compact('attendance'));
+    }
+
 }
