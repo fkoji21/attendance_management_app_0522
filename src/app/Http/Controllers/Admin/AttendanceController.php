@@ -34,7 +34,9 @@ class AttendanceController extends Controller
     public function show(Attendance $attendance)
     {
         $attendance->load('user', 'breakTimes');
-        return view('admin.attendance.show', compact('attendance'));
+        $breakTimes = $attendance->breakTimes;
+
+        return view('admin.attendance.show', compact('attendance', 'breakTimes'));
     }
 
 }
