@@ -27,7 +27,7 @@ class AuthController extends Controller
                 return back()->withErrors(['email' => '管理者権限がありません']);
             }
 
-            return redirect()->intended('/requests');
+            return redirect()->intended('/admin/attendances');
         }
 
         return back()->withErrors(['email' => '認証に失敗しました']);
