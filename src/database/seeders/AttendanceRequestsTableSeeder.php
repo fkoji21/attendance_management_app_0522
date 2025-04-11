@@ -11,7 +11,7 @@ class AttendanceRequestsTableSeeder extends Seeder
     public function run(): void
     {
         // 勤怠から3件ピックアップして申請を作成
-        Attendance::inRandomOrder()->take(3)->get()->each(function ($attendance) {
+        Attendance::inRandomOrder()->take(10)->get()->each(function ($attendance) {
             AttendanceRequest::factory()->create([
                 'attendance_id' => $attendance->id,
             ]);

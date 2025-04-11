@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             AttendancesTableSeeder::class,
             BreakTimesTableSeeder::class,
             AttendanceRequestsTableSeeder::class,
+            AttendanceSeeder::class,
         ]);
     }
 }

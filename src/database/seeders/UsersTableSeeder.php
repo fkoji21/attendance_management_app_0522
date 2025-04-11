@@ -33,6 +33,6 @@ class UsersTableSeeder extends Seeder
         ]);
 
         // ダミーユーザーを数件作成
-        User::factory()->count(3)->create();
+        User::factory()->count(10)->create();
     }
 }
