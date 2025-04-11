@@ -7,6 +7,7 @@
     <div class="p-4" style="width: 100%; max-width: 500px;">
         <h2 class="text-center mb-4">ログイン</h2>
 
+        {{-- 全体エラーメッセージ --}}
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul class="mb-0">
@@ -17,17 +18,28 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('login') }}">
+        <form method="POST" action="{{ route('login') }}" novalidate>
             @csrf
 
+            {{-- メールアドレス --}}
             <div class="mb-3">
                 <label for="email" class="form-label">メールアドレス</label>
-                <input type="email" name="email" id="email" class="form-control" required autofocus>
+                <input type="email" name="email" id="email"
+                    value="{{ old('email') }}"
+                    class="form-control @error('email') is-invalid @enderror">
+                @error('email')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
+            {{-- パスワード --}}
             <div class="mb-4">
                 <label for="password" class="form-label">パスワード</label>
-                <input type="password" name="password" id="password" class="form-control" required>
+                <input type="password" name="password" id="password"
+                    class="form-control @error('password') is-invalid @enderror">
+                @error('password')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="d-grid mb-3">

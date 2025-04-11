@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\LoginViewResponse;
 use Laravel\Fortify\Contracts\LogoutResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
@@ -27,6 +28,7 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // ログインビュー
         $this->app->singleton(LoginViewResponse::class, function () {
             return new class implements LoginViewResponse
             {
@@ -37,6 +39,7 @@ class FortifyServiceProvider extends ServiceProvider
             };
         });
 
+        // 新規登録ビュー
         $this->app->singleton(RegisterViewResponse::class, function () {
             return new class implements RegisterViewResponse
             {
@@ -47,6 +50,7 @@ class FortifyServiceProvider extends ServiceProvider
             };
         });
 
+        // 新規登録後のリダイレクト
         $this->app->singleton(RegisterResponse::class, function () {
             return new class implements RegisterResponse
             {
@@ -56,7 +60,6 @@ class FortifyServiceProvider extends ServiceProvider
                 }
             };
         });
-
     }
 
     /**
@@ -64,14 +67,15 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Fortifyのユーザー処理設定
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
+        // ログイン試行のレート制限
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())) . '|' . $request->ip());
-
             return Limit::perMinute(5)->by($throttleKey);
         });
 
@@ -79,20 +83,18 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
 
-        // 既存の Fortify 設定のあとに追加
-        $this->app->singleton(
-            \Laravel\Fortify\Contracts\LoginResponse::class,
-            function () {
-                return new class implements \Laravel\Fortify\Contracts\LoginResponse
+        // ログイン後のリダイレクト先（管理者と一般で分岐）
+        $this->app->singleton(LoginResponse::class, function () {
+            return new class implements LoginResponse
             {
-                    public function toResponse($request)
+                public function toResponse($request)
                 {
-                        return redirect()->intended(app(RedirectAuthenticatedUsers::class)());
-                    }
-                };
-            }
-        );
+                    return redirect()->intended(app(RedirectAuthenticatedUsers::class)());
+                }
+            };
+        });
 
+        // ログアウト後のリダイレクト先
         $this->app->singleton(LogoutResponse::class, function () {
             return new class implements LogoutResponse
             {
@@ -103,6 +105,7 @@ class FortifyServiceProvider extends ServiceProvider
             };
         });
 
+        // メール認証ビュー
         $this->app->singleton(VerifyEmailViewResponse::class, function () {
             return new class implements VerifyEmailViewResponse
             {
@@ -112,6 +115,5 @@ class FortifyServiceProvider extends ServiceProvider
                 }
             };
         });
-
     }
 }
