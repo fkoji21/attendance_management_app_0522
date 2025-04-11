@@ -27,19 +27,20 @@
             @foreach($attendances as $attendance)
                 <tr>
                     <td>{{ \Carbon\Carbon::parse($attendance->date)->format('m/d(D)') }}</td>
-                    <td>{{ optional($attendance->clock_in)->format('H:i') ?? '-' }}</td>
-                    <td>{{ optional($attendance->clock_out)->format('H:i') ?? '-' }}</td>
+                    <td>{{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '-' }}</td>
+                    <td>{{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '-' }}</td>
                     <td>
-                        {{ $attendance->breakTimes->sum(function ($break) {
+                        {{ number_format($attendance->breakTimes->sum(function ($break) {
                             return \Carbon\Carbon::parse($break->break_end)->diffInMinutes($break->break_start);
-                        }) / 60 }}:00
+                        }) / 60, 1) }}時間
                     </td>
                     <td>
-                        {{ \Carbon\Carbon::parse($attendance->clock_in)->diffInHours(\Carbon\Carbon::parse($attendance->clock_out)) -
-                            $attendance->breakTimes->sum(function ($break) {
-                                return \Carbon\Carbon::parse($break->break_end)->diffInMinutes($break->break_start);
+                        {{ number_format(
+                            \Carbon\Carbon::parse($attendance->clock_in)->diffInMinutes(\Carbon\Carbon::parse($attendance->clock_out)) / 60
+                            - $attendance->breakTimes->sum(function ($break) {
+                            return \Carbon\Carbon::parse($break->break_end)->diffInMinutes($break->break_start);
                             }) / 60
-                        }}:00
+                        , 1) }}時間
                     </td>
                     <td>
                         @php
