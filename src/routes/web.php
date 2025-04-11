@@ -53,9 +53,12 @@ Route::middleware('guest')->group(function () {
 // ------------------------
 // 管理者専用ルート
 // ------------------------
-Route::middleware(['auth', 'can:admin'])->group(function () {
-    Route::get('/admin/attendances', [AdminAttendanceController::class, 'daily'])->name('admin.attendance.daily');
-    Route::get('/admin/attendances/{attendance}', [AdminAttendanceController::class, 'show'])->name('admin.attendance.show');
+Route::prefix('admin')->middleware(['auth', 'can:admin'])->group(function () {
+    Route::get('/attendances', [AdminAttendanceController::class, 'daily'])->name('admin.attendance.daily');
+    Route::get('/attendances/{attendance}', [AdminAttendanceController::class, 'show'])->name('admin.attendance.show');
+
+    Route::get('/attendances/{attendance}/edit', [AdminAttendanceController::class, 'edit'])->name('admin.attendance.edit');
+    Route::put('/attendances/{attendance}', [AdminAttendanceController::class, 'update'])->name('admin.attendance.update');
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}/monthly', [UserController::class, 'showMonthlyAttendance'])->name('admin.users.monthly');
