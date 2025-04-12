@@ -7,13 +7,13 @@
     <div class="p-4" style="width: 100%; max-width: 500px;">
         <h2 class="text-center mb-4">会員登録</h2>
 
-        <form method="POST" action="{{ route('register') }}">
+        <form method="POST" action="{{ route('register') }}" novalidate>
             @csrf
 
             <div class="mb-3">
                 <label for="name" class="form-label">お名前</label>
                 <input id="name" type="text" class="form-control @error('name') is-invalid @enderror"
-                       name="name" value="{{ old('name') }}" required autofocus>
+                       name="name" value="{{ old('name') }}">
                 @error('name')
                     <span class="text-danger small">{{ $message }}</span>
                 @enderror
@@ -22,7 +22,7 @@
             <div class="mb-3">
                 <label for="email" class="form-label">メールアドレス</label>
                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
-                       name="email" value="{{ old('email') }}" required>
+                       name="email" value="{{ old('email') }}">
                 @error('email')
                     <span class="text-danger small">{{ $message }}</span>
                 @enderror

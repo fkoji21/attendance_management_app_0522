@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Requests\LoginRequest;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Actions\AttemptToAuthenticate;
 use Laravel\Fortify\Actions\EnsureLoginIsNotThrottled;
@@ -23,20 +23,27 @@ class AuthenticatedSessionController extends Controller
 
     public function store(LoginRequest $request): LoginResponse
     {
+        //明示的にバリデーションする（ルール／メッセージをFormRequestから取得）
+        Validator::make(
+            $request->all(),
+            app(LoginRequest::class)->rules(),
+            app(LoginRequest::class)->messages()
+        )->validate();
+
         app(EnsureLoginIsNotThrottled::class)($request);
 
         $user = app(AttemptToAuthenticate::class)($request);
 
         if (!$user) {
             throw ValidationException::withMessages([
-                Fortify::username() => __('auth.failed'), // langファイルで制御
+                Fortify::username() => __('auth.failed'),
             ]);
         }
 
         return app(PrepareAuthenticatedSession::class)($request, $user);
     }
 
-    public function destroy(Request $request)
+    public function destroy(LoginRequest $request)
     {
         $request->session()->invalidate();
         $request->session()->regenerateToken();
