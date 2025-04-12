@@ -72,3 +72,12 @@ Laravel Fortify を利用したユーザー認証（メール認証含む）を�
 ## 🗂 モデル一覧
 
 - `User`
+- `Attendance`
+- `AttendanceRequest`
+- `BreakTime`
+
+---
+
+## 💬 補足
+- 認証が必要なルートには `auth` ミドルウェア、管理者専用には `can:admin` を付与
+- デザインは Bootstrapベース、またはカスタムCSSで調整
