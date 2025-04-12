@@ -1,15 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'ログイン')
+@section('title', request()->is('admin/*') ? '管理者ログイン' : 'ログイン')
 
 @section('content')
 <div class="container d-flex justify-content-center">
     <div class="p-4" style="width: 100%; max-width: 500px;">
-        <h2 class="text-center mb-4">ログイン</h2>
+        <h2 class="text-center mb-4">
+            {{ request()->is('admin/*') ? '管理者ログイン' : 'ログイン' }}
+        </h2>
 
-        {{-- 全体エラーメッセージ --}}
         @if ($errors->any())
-            <div class="alert alert-danger">
+            <div class="alert alert-danger text-center">
                 <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -46,9 +47,11 @@
                 <button type="submit" class="btn btn-dark">ログインする</button>
             </div>
 
-            <div class="text-center">
-                <a href="{{ route('register') }}">会員登録はこちら</a>
-            </div>
+            @unless(request()->is('admin/*'))
+                <div class="text-center">
+                    <a href="{{ route('register') }}">会員登録はこちら</a>
+                </div>
+            @endunless
         </form>
     </div>
 </div>
