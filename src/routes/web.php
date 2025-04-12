@@ -43,17 +43,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // ------------------------
-// 管理者ログイン用（ゲスト）
+// 管理者ログインリダイレクト
 // ------------------------
-Route::middleware('guest')->group(function () {
-    Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
-    Route::post('/admin/login', [AuthController::class, 'login'])->name('admin.login.post');
-});
+Route::redirect('/admin/login', '/login');
 
 // ------------------------
 // 管理者専用ルート
 // ------------------------
 Route::prefix('admin')->middleware(['auth', 'can:admin'])->group(function () {
+
     Route::get('/attendances', [AdminAttendanceController::class, 'daily'])->name('admin.attendance.daily');
     Route::get('/attendances/{attendance}', [AdminAttendanceController::class, 'show'])->name('admin.attendance.show');
 
