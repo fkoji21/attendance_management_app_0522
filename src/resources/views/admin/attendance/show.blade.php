@@ -7,7 +7,9 @@
     @include('components.attendance.detail', [
         'attendance' => $attendance,
         'breakTimes' => $breakTimes,
-        'showForm' => false,
+        'showForm' => true,
+        'editRoute' => route('admin.attendance.update', $attendance->id),
+        'submitLabel' => '修正する',
         'backRoute' => route('admin.attendance.daily', ['date' => $attendance->date])
     ])
 @endsection

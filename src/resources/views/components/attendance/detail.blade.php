@@ -9,6 +9,7 @@
         @if($showForm ?? false)
         <form action="{{ $editRoute }}" method="POST">
             @csrf
+            @method('PUT')
             <div class="mb-3">
                 <label>出勤時刻</label>
                 <input type="time" name="clock_in" class="form-control" value="{{ \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') }}">
@@ -21,7 +22,7 @@
                 <label>備考</label>
                 <textarea name="note" class="form-control">{{ $attendance->note }}</textarea>
             </div>
-            <button type="submit" class="btn btn-primary">修正申請する</button>
+            <button type="submit" class="btn btn-primary"> {{ $submitLabel ?? '修正申請する' }}</button>
         </form>
         @endif
     </div>
