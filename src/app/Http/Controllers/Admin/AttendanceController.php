@@ -48,10 +48,12 @@ class AttendanceController extends Controller
 
     public function update(AttendanceEditRequest $request, Attendance $attendance)
     {
+        $date = $attendance->date ?? now()->toDateString(); // 勤怠の日付を取得
+
         // 更新処理（休憩時間の保存も必要に応じて追加）
         $attendance->update([
-            'clock_in' => $request->clock_in,
-            'clock_out' => $request->clock_out,
+            'clock_in' => Carbon::parse($date . ' ' . $request->clock_in),
+            'clock_out' => Carbon::parse($date . ' ' . $request->clock_out),
             'note' => $request->note,
         ]);
 
