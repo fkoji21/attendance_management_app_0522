@@ -89,7 +89,7 @@ class FortifyServiceProvider extends ServiceProvider
             {
                 public function toResponse($request)
                 {
-                    return redirect()->intended(app(RedirectAuthenticatedUsers::class)());
+                    return redirect(app(RedirectAuthenticatedUsers::class)());
                 }
             };
         });

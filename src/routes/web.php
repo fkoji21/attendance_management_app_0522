@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
-use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\RequestController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AttendanceController;
