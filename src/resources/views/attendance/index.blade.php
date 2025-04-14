@@ -63,6 +63,10 @@
     </div>
 
     <script>
+        setTimeout(() => {
+        document.querySelector('.alert')?.remove();
+        }, 3000);
+
         // 現在時刻の更新（JS）
         function updateCurrentTime() {
             const now = new Date();

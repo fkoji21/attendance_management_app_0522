@@ -25,23 +25,27 @@
         </thead>
         <tbody>
             @foreach($attendances as $attendance)
+                @php
+                    $breakMinutes = $attendance->breakTimes->sum(function ($break) {
+                        return $break->break_end
+                            ? \Carbon\Carbon::parse($break->break_end)->diffInMinutes($break->break_start)
+                            : 0;
+                    });
+                    $clockIn = $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '-';
+                    $clockOut = $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '-';
+                    $workTime = '-';
+
+                    if ($attendance->clock_in && $attendance->clock_out) {
+                        $workMinutes = \Carbon\Carbon::parse($attendance->clock_in)->diffInMinutes(\Carbon\Carbon::parse($attendance->clock_out)) - $breakMinutes;
+                        $workTime = number_format($workMinutes / 60, 1) . '時間';
+                    }
+                @endphp
                 <tr>
                     <td>{{ \Carbon\Carbon::parse($attendance->date)->format('m/d(D)') }}</td>
-                    <td>{{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '-' }}</td>
-                    <td>{{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '-' }}</td>
-                    <td>
-                        {{ number_format($attendance->breakTimes->sum(function ($break) {
-                            return \Carbon\Carbon::parse($break->break_end)->diffInMinutes($break->break_start);
-                        }) / 60, 1) }}時間
-                    </td>
-                    <td>
-                        {{ number_format(
-                            \Carbon\Carbon::parse($attendance->clock_in)->diffInMinutes(\Carbon\Carbon::parse($attendance->clock_out)) / 60
-                            - $attendance->breakTimes->sum(function ($break) {
-                            return \Carbon\Carbon::parse($break->break_end)->diffInMinutes($break->break_start);
-                            }) / 60
-                        , 1) }}時間
-                    </td>
+                    <td>{{ $clockIn }}</td>
+                    <td>{{ $clockOut }}</td>
+                    <td>{{ number_format($breakMinutes / 60, 1) }}時間</td>
+                    <td>{{ $workTime }}</td>
                     <td>
                         @php
                             $route = Auth::user()->is_admin

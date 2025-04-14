@@ -30,7 +30,7 @@ class Attendance extends Model
 
     public function breakTimes()
     {
-        return $this->hasMany(BreakTime::class);
+        return $this->hasMany(BreakTime::class)->orderBy('break_start', 'asc');
     }
 
     public function request()

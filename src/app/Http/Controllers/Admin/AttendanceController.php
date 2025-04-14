@@ -48,27 +48,23 @@ class AttendanceController extends Controller
 
     public function update(AttendanceEditRequest $request, Attendance $attendance)
     {
-        $date = $attendance->date ?? now()->toDateString(); // 勤怠の日付を取得
+        $date = $attendance->date ?? now()->toDateString();
 
-        // 更新処理（休憩時間の保存も必要に応じて追加）
+        // 出退勤・備考の更新
         $attendance->update([
             'clock_in' => Carbon::parse($date . ' ' . $request->clock_in),
             'clock_out' => Carbon::parse($date . ' ' . $request->clock_out),
             'note' => $request->note,
         ]);
 
-        // 休憩時間も1セットだけ更新する例（複数対応なら別処理）
-        if ($request->filled('break_start') && $request->filled('break_end')) {
-            $break = $attendance->breakTimes()->first();
-            if ($break) {
-                $break->update([
-                    'break_start' => $request->break_start,
-                    'break_end' => $request->break_end,
-                ]);
-            } else {
+        // 既存休憩を全削除 → 入れ直し（編集操作としてシンプル）
+        $attendance->breakTimes()->delete();
+
+        foreach ($request->input('break_times', []) as $break) {
+            if (!empty($break['start']) && !empty($break['end'])) {
                 $attendance->breakTimes()->create([
-                    'break_start' => $request->break_start,
-                    'break_end' => $request->break_end,
+                    'break_start' => Carbon::parse($date . ' ' . $break['start']),
+                    'break_end' => Carbon::parse($date . ' ' . $break['end']),
                 ]);
             }
         }

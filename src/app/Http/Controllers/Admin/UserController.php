@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Response;
 
 class UserController extends Controller
@@ -18,13 +20,13 @@ class UserController extends Controller
 
     public function showMonthlyAttendance(Request $request, $userId)
     {
-        $user = \App\Models\User::findOrFail($userId);
+        $user = User::findOrFail($userId);
 
-        $month = $request->input('month', \Carbon\Carbon::now()->format('Y-m'));
-        $startOfMonth = \Carbon\Carbon::createFromFormat('Y-m', $month)->startOfMonth();
-        $endOfMonth = \Carbon\Carbon::createFromFormat('Y-m', $month)->endOfMonth();
+        $month = $request->input('month', Carbon::now()->format('Y-m'));
+        $startOfMonth = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+        $endOfMonth = Carbon::createFromFormat('Y-m', $month)->endOfMonth();
 
-        $attendances = \App\Models\Attendance::with('breakTimes')
+        $attendances = Attendance::with('breakTimes')
             ->where('user_id', $userId)
             ->whereBetween('date', [$startOfMonth, $endOfMonth])
             ->orderBy('date')
@@ -41,12 +43,12 @@ class UserController extends Controller
 
     public function exportMonthlyCsv(Request $request, $userId)
     {
-        $user = \App\Models\User::findOrFail($userId);
+        $user = User::findOrFail($userId);
         $month = $request->input('month', now()->format('Y-m'));
-        $startOfMonth = \Carbon\Carbon::createFromFormat('Y-m', $month)->startOfMonth();
-        $endOfMonth = \Carbon\Carbon::createFromFormat('Y-m', $month)->endOfMonth();
+        $startOfMonth = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+        $endOfMonth = Carbon::createFromFormat('Y-m', $month)->endOfMonth();
 
-        $attendances = \App\Models\Attendance::with('breakTimes')
+        $attendances = Attendance::with('breakTimes')
             ->where('user_id', $userId)
             ->whereBetween('date', [$startOfMonth, $endOfMonth])
             ->orderBy('date')
@@ -57,16 +59,24 @@ class UserController extends Controller
 
         foreach ($attendances as $a) {
             $breakMinutes = $a->breakTimes->sum(function ($b) {
-                return \Carbon\Carbon::parse($b->break_end)->diffInMinutes($b->break_start);
+                return $b->break_end ? Carbon::parse($b->break_end)->diffInMinutes($b->break_start) : 0;
             });
-            $workMinutes = \Carbon\Carbon::parse($a->clock_in)->diffInMinutes(\Carbon\Carbon::parse($a->clock_out)) - $breakMinutes;
+
+            $clockIn = $a->clock_in ? Carbon::parse($a->clock_in)->format('H:i') : '-';
+            $clockOut = $a->clock_out ? Carbon::parse($a->clock_out)->format('H:i') : '-';
+
+            $workTime = '-';
+            if ($a->clock_in && $a->clock_out) {
+                $workMinutes = Carbon::parse($a->clock_in)->diffInMinutes(Carbon::parse($a->clock_out)) - $breakMinutes;
+                $workTime = gmdate('H:i', $workMinutes * 60);
+            }
 
             $csvData[] = [
-                \Carbon\Carbon::parse($a->date)->format('Y/m/d'),
-                optional($a->clock_in)->format('H:i'),
-                optional($a->clock_out)->format('H:i'),
+                Carbon::parse($a->date)->format('Y/m/d'),
+                $clockIn,
+                $clockOut,
                 gmdate('H:i', $breakMinutes * 60),
-                gmdate('H:i', $workMinutes * 60),
+                $workTime,
             ];
         }
 
@@ -75,7 +85,7 @@ class UserController extends Controller
         $response = Response::streamDownload(function () use ($csvData) {
             $stream = fopen('php://output', 'w');
 
-            //Excel文字化け防止のBOM（UTF-8 with BOM）
+            // Excel文字化け防止のBOM（UTF-8 with BOM）
             fwrite($stream, "\xEF\xBB\xBF");
 
             foreach ($csvData as $row) {

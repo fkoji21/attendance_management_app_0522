@@ -29,9 +29,12 @@ class RequestController extends Controller
 
     public function show(AttendanceRequest $request)
     {
-        $request->load(['attendance.user']);
+        $request->load(['attendance.user', 'attendance.breakTimes']);
+        // リレーションから取得
+        $breakTimes = $request->attendance->breakTimes ?? collect();
 
-        return view('admin.requests.show', compact('request'));
+        return view('admin.requests.show', compact('request', 'breakTimes'));
+
     }
 
     public function approve(AttendanceRequest $request)

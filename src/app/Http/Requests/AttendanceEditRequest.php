@@ -36,25 +36,27 @@ class AttendanceEditRequest extends FormRequest
         $validator->after(function ($validator) {
             $clockIn = $this->input('clock_in');
             $clockOut = $this->input('clock_out');
-            $breakStart = $this->input('break_start');
-            $breakEnd = $this->input('break_end');
 
             // 出勤・退勤の妥当性チェック
             if ($clockIn && $clockOut && $clockIn >= $clockOut) {
                 $validator->errors()->add('clock_out', '出勤時間もしくは退勤時間が不適切な値です');
             }
 
-            // 休憩時間のチェック
-            if ($breakStart && ($breakStart < $clockIn || $breakStart > $clockOut)) {
-                $validator->errors()->add('break_start', '休憩時間が勤務時間外です');
-            }
+            foreach ($this->input('break_times', []) as $i => $break) {
+                $start = $break['start'] ?? null;
+                $end = $break['end'] ?? null;
 
-            if ($breakEnd && ($breakEnd < $clockIn || $breakEnd > $clockOut)) {
-                $validator->errors()->add('break_end', '休憩時間が勤務時間外です');
-            }
+                if ($start && ($start < $clockIn || $start > $clockOut)) {
+                    $validator->errors()->add("break_times.$i.start", '休憩時間が勤務時間外です');
+                }
 
-            if ($breakStart && $breakEnd && $breakStart >= $breakEnd) {
-                $validator->errors()->add('break_end', '休憩終了時間は休憩開始時間より後にしてください');
+                if ($end && ($end < $clockIn || $end > $clockOut)) {
+                    $validator->errors()->add("break_times.$i.end", '休憩時間が勤務時間外です');
+                }
+
+                if ($start && $end && $start >= $end) {
+                    $validator->errors()->add("break_times.$i.end", '休憩終了時間は休憩開始時間より後にしてください');
+                }
             }
 
         });
