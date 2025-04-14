@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
-use App\Http\Controllers\Admin\RequestController;
+use App\Http\Controllers\Admin\RequestController as AdminRequestController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\RequestController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,8 +38,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/attendances', [AttendanceController::class, 'monthly'])->name('attendance.monthly');
     Route::get('/attendances/{attendance}', [AttendanceController::class, 'show'])->name('attendance.show');
     Route::post('/attendances/{attendance}/request-edit', [AttendanceController::class, 'requestEdit'])->name('attendance.request.edit');
-    Route::get('/my-requests', [AttendanceController::class, 'requestList'])->name('attendance.requests');
-    Route::get('/requests/{request}', [RequestController::class, 'show'])->name('request.show');
+    Route::prefix('requests')->name('requests.')->group(function () {
+        Route::get('/', [RequestController::class, 'index'])->name('index');
+        Route::get('/{request}', [RequestController::class, 'show'])->name('show');
+    });
 });
 
 // ------------------------
@@ -60,8 +63,10 @@ Route::prefix('admin')->middleware(['auth', 'can:admin'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}/monthly', [UserController::class, 'showMonthlyAttendance'])->name('admin.users.monthly');
     Route::get('/users/{user}/monthly/export', [UserController::class, 'exportMonthlyCsv'])->name('admin.users.monthly.export');
+});
 
-    Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
-    Route::get('/requests/{request}', [RequestController::class, 'show'])->name('requests.show');
-    Route::post('/requests/{request}/approve', [RequestController::class, 'approve'])->name('requests.approve');
+Route::prefix('admin/requests')->middleware(['auth', 'can:admin'])->name('admin.requests.')->group(function () {
+    Route::get('/', [AdminRequestController::class, 'index'])->name('index');
+    Route::get('/{request}', [AdminRequestController::class, 'show'])->name('show');
+    Route::post('/{request}/approve', [AdminRequestController::class, 'approve'])->name('approve');
 });

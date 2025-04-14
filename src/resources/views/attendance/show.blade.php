@@ -7,8 +7,8 @@
     @include('components.attendance.detail', [
         'attendance' => $attendance,
         'breakTimes' => $breakTimes,
-        'showForm' => true,
-        'editRoute' => route('attendance.request.edit', $attendance->id),
-        'backRoute' => route('attendance.monthly')
+        'showForm' => $showForm ?? true,
+        'editRoute' => $editRoute ?? null,
+        'backRoute' => $backRoute ?? route('attendance.monthly'),
     ])
 @endsection

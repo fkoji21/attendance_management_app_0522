@@ -166,19 +166,4 @@ class AttendanceController extends Controller
         return redirect()->route('attendance.show', $attendance)->with('message', '修正申請を送信しました');
     }
 
-    public function requestList()
-    {
-        $userId = Auth::id();
-
-        $pending = AttendanceRequest::whereHas('attendance', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })->where('is_approved', false)->with('attendance')->get();
-
-        $approved = AttendanceRequest::whereHas('attendance', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })->where('is_approved', true)->with('attendance')->get();
-
-        return view('attendance.requests', compact('pending', 'approved'));
-    }
-
 }

@@ -57,7 +57,11 @@
             </tbody>
         </table>
     @endif
-
+    @if (!$showForm && isset($request) && !$request->is_approved)
+        <div class="text-danger text-end px-4 pt-2" style="font-size: 0.875rem;">
+            ※承認待ちのため修正はできません。
+        </div>
+    @endif
     <div class="mt-4">
         <a href="{{ $backRoute }}" class="btn btn-outline-secondary">← 一覧に戻る</a>
     </div>

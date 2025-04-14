@@ -59,7 +59,7 @@
                     {{-- 一般スタッフ用リンク --}}
                     <li class="nav-item"><a class="nav-link" href="{{ route('attendance.index') }}">勤怠</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('attendance.monthly') }}">勤怠一覧</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{route('attendance.requests')}}">申請</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('requests.index') }}">申請</a></li>
                     @endif
                 @endauth
                 {{-- ログアウト共通 --}}
@@ -78,5 +78,6 @@
     <main class="py-4">
         @yield('content')
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
