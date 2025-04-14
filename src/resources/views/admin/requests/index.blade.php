@@ -7,7 +7,7 @@
         'pending' => $pendingRequests,
         'approved' => $approvedRequests,
         'title' => '修正申請一覧（管理者）',
-        'detailRoutePrefix' => 'requests.',
+        'detailRoutePrefix' => 'admin.requests.',
         'btnClass' => 'btn-outline-secondary',
     ])
 @endsection

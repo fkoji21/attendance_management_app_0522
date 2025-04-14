@@ -54,7 +54,7 @@
                     {{-- 管理者用リンク --}}
                     <li class="nav-item"><a class="nav-link" href="{{ route('admin.attendance.daily') }}">勤怠一覧</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('users.index') }}">スタッフ一覧</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('requests.index') }}">申請一覧</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('admin.requests.index') }}">申請一覧</a></li>
                     @else
                     {{-- 一般スタッフ用リンク --}}
                     <li class="nav-item"><a class="nav-link" href="{{ route('attendance.index') }}">勤怠</a></li>

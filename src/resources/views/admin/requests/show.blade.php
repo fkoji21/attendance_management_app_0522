@@ -40,7 +40,7 @@
     </table>
 
     @if (!$request->is_approved)
-        <form method="POST" action="{{ route('requests.approve', $request->id) }}">
+        <form method="POST" action="{{ route('admin.requests.approve', $request->id) }}">
             @csrf
             <button type="submit" class="btn btn-primary">承認する</button>
         </form>

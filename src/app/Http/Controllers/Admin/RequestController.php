@@ -20,7 +20,11 @@ class RequestController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return view('admin.requests.index', compact('pendingRequests', 'approvedRequests'));
+        return view('admin.requests.index', [
+            'pendingRequests' => $pendingRequests,
+            'approvedRequests' => $approvedRequests,
+        ]);
+
     }
 
     public function show(AttendanceRequest $request)
@@ -45,6 +49,6 @@ class RequestController extends Controller
 
         $request->update(['is_approved' => true]);
 
-        return redirect()->route('requests.index')->with('message', '承認が完了しました');
+        return redirect()->route('admin.requests.index')->with('message', '承認が完了しました');
     }
 }
