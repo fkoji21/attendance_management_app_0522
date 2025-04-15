@@ -57,7 +57,7 @@
                                     <td>{{ $request->requested_note }}</td>
                                     <td>{{ $request->created_at }}</td>
                                     <td>
-                                        <a href="{{ route($detailRoutePrefix . 'show', $request->id) }}"
+                                        <a href="{{ route($detailRoutePrefix . 'show', ['request' => $request->id, 'from' => 'requests.index']) }}"
                                            class="btn btn-sm {{ $btnClass ?? 'btn-primary' }}">詳細</a>
                                     </td>
                                 </tr>

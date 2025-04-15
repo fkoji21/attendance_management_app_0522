@@ -48,9 +48,19 @@
                     <td>{{ $workTime }}</td>
                     <td>
                         @php
-                            $route = Auth::user()->is_admin
-                                ? route('admin.attendance.show', $attendance->id)
-                                : route('attendance.show', $attendance->id);
+                            $isAdmin = Auth::user()->is_admin;
+                            $route = $isAdmin
+                                ? route('admin.attendance.show', [
+                                    'attendance' => $attendance->id,
+                                    'from' => 'admin.users.monthly',
+                                    'user' => $user->id,
+                                    'month' => $currentMonth->format('Y-m')
+                                ])
+                                : route('attendance.show', [
+                                    'attendance' => $attendance->id,
+                                    'from' => 'attendance.monthly',
+                                    'month' => $currentMonth->format('Y-m')
+                                ]);
                         @endphp
                         <a class="btn btn-outline-primary btn-sm" href="{{ $route }}">詳細</a>
                     </td>

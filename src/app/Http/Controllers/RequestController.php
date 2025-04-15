@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class RequestController extends Controller
@@ -22,16 +23,26 @@ class RequestController extends Controller
         return view('attendance.requests', compact('pending', 'approved'));
     }
 
-    public function show(AttendanceRequest $request)
+    public function show(AttendanceRequest $request, Request $httpRequest)
     {
-        $request->load(['attendance.breakTimes']);
+        if ($request->attendance->user_id !== Auth::id()) {
+            abort(403);
+        }
 
-        return view('attendance.show', [
-            'attendance' => $request->attendance,
-            'breakTimes' => $request->attendance->breakTimes,
-            'showForm' => false, // 修正フォームなし
-            'backRoute' => route('requests.index'),
-            'request' => $request, // 承認済みチェックに使う
-        ]);
+        $request->load(['attendance.breakTimes']);
+        $attendance = $request->attendance;
+        $breakTimes = $attendance->breakTimes;
+
+        $from = $httpRequest->query('from');
+        $month = $httpRequest->query('month');
+
+        $backRoute = match ($from) {
+            'attendance.monthly' => route('attendance.monthly', ['month' => $month]),
+            'requests.index' => route('requests.index'),
+            default => route('requests.index'),
+        };
+
+        return view('attendance.show', compact('attendance', 'breakTimes', 'request', 'backRoute'));
+
     }
 }

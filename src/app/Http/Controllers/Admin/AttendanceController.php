@@ -32,12 +32,28 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function show(Attendance $attendance)
+    public function show(Attendance $attendance, Request $request)
     {
         $attendance->load('user', 'breakTimes');
         $breakTimes = $attendance->breakTimes;
 
-        return view('admin.attendance.show', compact('attendance', 'breakTimes'));
+        $from = $request->query('from');
+        $month = $request->query('month');
+        $userId = $request->query('user');
+        $date = $attendance->date;
+
+        $backRoute = match ($from) {
+            'admin.users.monthly' => route('admin.users.monthly', [
+                'user' => $userId,
+                'month' => $month,
+            ]),
+            'admin.requests.index' => route('admin.requests.index'),
+            'admin.attendance.daily' => route('admin.attendance.daily', ['date' => $date]),
+            default => route('admin.attendance.daily', ['date' => $date]),
+        };
+
+        return view('admin.attendance.show', compact('attendance', 'breakTimes', 'backRoute'));
+
     }
 
     public function edit(Attendance $attendance)

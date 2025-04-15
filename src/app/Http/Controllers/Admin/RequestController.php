@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceRequest;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class RequestController extends Controller
 {
@@ -27,13 +28,28 @@ class RequestController extends Controller
 
     }
 
-    public function show(AttendanceRequest $request)
+    public function show(AttendanceRequest $request, Request $httpRequest)
     {
         $request->load(['attendance.user', 'attendance.breakTimes']);
-        // リレーションから取得
-        $breakTimes = $request->attendance->breakTimes ?? collect();
+        $attendance = $request->attendance;
+        $breakTimes = $attendance->breakTimes;
 
-        return view('admin.requests.show', compact('request', 'breakTimes'));
+        $from = $httpRequest->query('from');
+        $month = $httpRequest->query('month');
+        $userId = $httpRequest->query('user');
+        $date = $attendance->date;
+
+        $backRoute = match ($from) {
+            'admin.users.monthly' => route('admin.users.monthly', [
+                'user' => $userId,
+                'month' => $month,
+            ]),
+            'admin.attendance.daily' => route('admin.attendance.daily', ['date' => $date]),
+            'admin.requests.index' => route('admin.requests.index'),
+            default => route('admin.requests.index'),
+        };
+
+        return view('admin.requests.show', compact('request', 'breakTimes', 'backRoute'));
 
     }
 

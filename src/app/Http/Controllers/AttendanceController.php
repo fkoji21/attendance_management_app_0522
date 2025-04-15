@@ -137,9 +137,8 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function show(Attendance $attendance)
+    public function show(Attendance $attendance, Request $request)
     {
-        // 自分以外の勤怠は見れないように制限
         if ($attendance->user_id !== Auth::id()) {
             abort(403);
         }
@@ -147,7 +146,18 @@ class AttendanceController extends Controller
         $attendance->load('user', 'breakTimes');
         $breakTimes = $attendance->breakTimes;
 
-        return view('attendance.show', compact('attendance', 'breakTimes'));
+        $from = $request->query('from');
+        $month = $request->query('month');
+        $date = $attendance->date;
+
+        $backRoute = match ($from) {
+            'attendance.monthly' => route('attendance.monthly', ['month' => $month]),
+            'requests.index' => route('requests.index'),
+            default => route('attendance.index'),
+        };
+
+        return view('attendance.show', compact('attendance', 'breakTimes', 'backRoute'));
+
     }
 
     public function requestEdit(AttendanceEditRequest $request, Attendance $attendance)
