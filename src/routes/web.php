@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/attendance/break-end', [AttendanceController::class, 'endBreak'])->name('attendance.break.end');
     Route::get('/attendances', [AttendanceController::class, 'monthly'])->name('attendance.monthly');
     Route::get('/attendances/{attendance}', [AttendanceController::class, 'show'])->name('attendance.show');
+    Route::put('/attendances/{attendance}', [AttendanceController::class, 'update'])->name('attendance.update');
     Route::post('/attendances/{attendance}/request-edit', [AttendanceController::class, 'requestEdit'])->name('attendance.request.edit');
     Route::prefix('requests')->name('requests.')->group(function () {
         Route::get('/', [RequestController::class, 'index'])->name('index');

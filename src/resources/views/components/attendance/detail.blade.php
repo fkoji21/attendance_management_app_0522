@@ -18,7 +18,7 @@
     @if ($showForm ?? false)
     <form action="{{ $editRoute }}" method="POST">
         @csrf
-        @method('PUT')
+        {{-- @method('PUT') は不要！ --}}
     @endif
 
     {{-- 出勤時刻 --}}
@@ -55,48 +55,44 @@
 
     {{-- 休憩記録 --}}
     <h5>休憩記録</h5>
-    @if ($breakTimes->isEmpty())
-        <p>休憩なし</p>
-    @else
-        <table class="table table-bordered text-center">
-            <thead>
+    <table class="table table-bordered text-center">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>開始</th>
+                <th>終了</th>
+                <th>休憩時間</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($breakTimes as $i => $break)
+                @php
+                    $start = $break->break_start ? \Carbon\Carbon::parse($break->break_start)->format('H:i') : '';
+                    $end = $break->break_end ? \Carbon\Carbon::parse($break->break_end)->format('H:i') : '';
+                @endphp
                 <tr>
-                    <th>#</th>
-                    <th>開始</th>
-                    <th>終了</th>
-                    <th>休憩時間</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($breakTimes as $i => $break)
-                    @php
-                        $start = \Carbon\Carbon::parse($break->break_start)->format('H:i');
-                        $end = $break->break_end ? \Carbon\Carbon::parse($break->break_end)->format('H:i') : '';
-                    @endphp
-                    <tr>
-                        <td>{{ $i + 1 }}</td>
-                        @if ($showForm ?? false)
-                            <td><input type="time" name="break_times[{{ $i }}][start]" class="form-control" value="{{ $start }}"></td>
-                            <td><input type="time" name="break_times[{{ $i }}][end]" class="form-control" value="{{ $end }}"></td>
+                    <td>{{ $i + 1 }}</td>
+                    @if ($showForm ?? false)
+                        <td><input type="time" name="break_times[{{ $i }}][start]" class="form-control" value="{{ $start }}"></td>
+                        <td><input type="time" name="break_times[{{ $i }}][end]" class="form-control" value="{{ $end }}"></td>
+                    @else
+                        <td>{{ $start }}</td>
+                        <td>{{ $end ?: '休憩中' }}</td>
+                    @endif
+                    <td>
+                        @if ($end)
+                            @php
+                                $duration = \Carbon\Carbon::parse($end)->diffInMinutes(\Carbon\Carbon::parse($start));
+                            @endphp
+                            {{ floor($duration / 60) . ':' . str_pad($duration % 60, 2, '0', STR_PAD_LEFT) }}
                         @else
-                            <td>{{ $start }}</td>
-                            <td>{{ $end ?: '休憩中' }}</td>
+                            -
                         @endif
-                        <td>
-                            @if ($end)
-                                @php
-                                    $duration = \Carbon\Carbon::parse($end)->diffInMinutes(\Carbon\Carbon::parse($start));
-                                @endphp
-                                {{ floor($duration / 60) . ':' . str_pad($duration % 60, 2, '0', STR_PAD_LEFT) }}
-                            @else
-                                -
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @endif
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
 
     {{-- ボタン表示部（編集 or 閲覧） --}}
     @if ($showForm ?? false)

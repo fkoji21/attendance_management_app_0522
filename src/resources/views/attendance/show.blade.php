@@ -8,7 +8,7 @@
         'attendance' => $attendance,
         'breakTimes' => $breakTimes,
         'showForm' => $showForm ?? true,
-        'editRoute' => $editRoute ?? null,
+        'editRoute' => route('attendance.request.edit', $attendance->id),
         'backRoute' => $backRoute ?? route('attendance.monthly'),
     ])
 @endsection

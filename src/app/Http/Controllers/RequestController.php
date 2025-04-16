@@ -25,13 +25,14 @@ class RequestController extends Controller
 
     public function show(AttendanceRequest $request, Request $httpRequest)
     {
-        if ($request->attendance->user_id !== Auth::id()) {
+        $attendance = $request->attendance;
+        if ($attendance->user_id !== Auth::id()) {
             abort(403);
         }
 
-        $request->load(['attendance.breakTimes']);
-        $attendance = $request->attendance;
+        $attendance->load('user', 'breakTimes');
         $breakTimes = $attendance->breakTimes;
+        $showForm = !($request && !$request->is_approved);
 
         $from = $httpRequest->query('from');
         $month = $httpRequest->query('month');
@@ -42,7 +43,6 @@ class RequestController extends Controller
             default => route('requests.index'),
         };
 
-        return view('attendance.show', compact('attendance', 'breakTimes', 'request', 'backRoute'));
-
+        return view('attendance.show', compact('attendance', 'breakTimes', 'request', 'backRoute', 'showForm'));
     }
 }

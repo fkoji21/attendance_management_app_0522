@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RequestController extends Controller
 {
@@ -33,7 +34,12 @@ class RequestController extends Controller
         $request->load(['attendance.user', 'attendance.breakTimes']);
         $attendance = $request->attendance;
         $breakTimes = $attendance->breakTimes;
-
+        if ($breakTimes->isEmpty()) {
+            $breakTimes = collect([(object) [
+                'break_start' => null,
+                'break_end' => null,
+            ]]);
+        }
         $from = $httpRequest->query('from');
         $month = $httpRequest->query('month');
         $userId = $httpRequest->query('user');
@@ -49,7 +55,12 @@ class RequestController extends Controller
             default => route('admin.requests.index'),
         };
 
-        return view('admin.requests.show', compact('request', 'breakTimes', 'backRoute'));
+        return view('admin.requests.show', [
+            'request' => $request,
+            'attendanceRequest' => $request,
+            'breakTimes' => $breakTimes,
+            'backRoute' => $backRoute,
+        ]);
 
     }
 
@@ -59,14 +70,30 @@ class RequestController extends Controller
             return back()->with('message', 'すでに承認済みです');
         }
 
-        $attendance = $request->attendance;
-        $attendance->update([
-            'clock_in' => Carbon::parse($attendance->date . ' ' . $request->requested_clock_in),
-            'clock_out' => Carbon::parse($attendance->date . ' ' . $request->requested_clock_out),
-            'note' => $request->requested_note,
-        ]);
+        DB::transaction(function () use ($request) {
+            $attendance = $request->attendance;
 
-        $request->update(['is_approved' => true]);
+            // 出退勤＋備考の更新（時刻結合あり）
+            $attendance->update([
+                'clock_in' => Carbon::parse($attendance->date . ' ' . $request->requested_clock_in),
+                'clock_out' => Carbon::parse($attendance->date . ' ' . $request->requested_clock_out),
+                'note' => $request->requested_note,
+            ]);
+
+            // 現在の休憩記録を削除
+            $attendance->breakTimes()->delete();
+
+            // 申請された休憩時間を反映
+            foreach ($request->breakTimeRequests as $break) {
+                $attendance->breakTimes()->create([
+                    'break_start' => $attendance->date . ' ' . $break->break_start,
+                    'break_end' => $break->break_end ? $attendance->date . ' ' . $break->break_end : null,
+                ]);
+            }
+
+            // 承認フラグを更新
+            $request->update(['is_approved' => true]);
+        });
 
         return redirect()->route('admin.requests.index')->with('message', '承認が完了しました');
     }

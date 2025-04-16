@@ -36,7 +36,13 @@ class AttendanceController extends Controller
     {
         $attendance->load('user', 'breakTimes');
         $breakTimes = $attendance->breakTimes;
-
+        if ($breakTimes->isEmpty()) {
+            $breakTimes = collect([(object) [
+                'break_start' => null,
+                'break_end' => null,
+            ]]);
+        }
+        $showForm = false;
         $from = $request->query('from');
         $month = $request->query('month');
         $userId = $request->query('user');

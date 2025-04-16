@@ -13,11 +13,21 @@ class BreakTimeFactory extends Factory
 
     public function definition(): array
     {
-        $start = Carbon::now()->subHours(rand(4, 6));
-        $end = (clone $start)->addMinutes(rand(15, 60));
+        static $lastEnd = null;
+
+        $attendance = Attendance::inRandomOrder()->first();
+
+        if (!$lastEnd || $lastEnd->diffInHours(now()) > 4) {
+            $start = Carbon::parse($attendance->clock_in)->addHours(rand(1, 3));
+        } else {
+            $start = (clone $lastEnd)->addMinutes(rand(30, 90));
+        }
+
+        $end = (clone $start)->addMinutes(rand(15, 30));
+        $lastEnd = clone $end;
 
         return [
-            'attendance_id' => Attendance::inRandomOrder()->first()->id,
+            'attendance_id' => $attendance->id,
             'break_start' => $start,
             'break_end' => $end,
         ];

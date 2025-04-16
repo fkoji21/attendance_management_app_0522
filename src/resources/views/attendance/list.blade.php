@@ -52,7 +52,7 @@
                         <td>{{ $totalBreakStr }}</td>
                         <td>{{ $workDurationStr }}</td>
                         <td>
-                            <a href="{{ route('attendance.show', $attendance->id) }}" class="btn btn-outline-dark btn-sm">詳細</a>
+                            <a href="{{ route('attendance.show', ['attendance' => $attendance->id, 'from' => 'attendance.monthly', 'month' => $currentMonth->format('Y-m')]) }}" class="btn btn-outline-dark btn-sm">詳細</a>
                         </td>
                     </tr>
                 @empty

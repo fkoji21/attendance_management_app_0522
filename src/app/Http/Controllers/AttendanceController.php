@@ -145,10 +145,17 @@ class AttendanceController extends Controller
 
         $attendance->load('user', 'breakTimes');
         $breakTimes = $attendance->breakTimes;
+        if ($breakTimes->isEmpty()) {
+            $breakTimes = collect([(object) [
+                'break_start' => null,
+                'break_end' => null,
+            ]]);
+        }
+        $attendanceRequest = AttendanceRequest::where('attendance_id', $attendance->id)->first();
+        $showForm = !($attendanceRequest && !$attendanceRequest->is_approved);
 
         $from = $request->query('from');
         $month = $request->query('month');
-        $date = $attendance->date;
 
         $backRoute = match ($from) {
             'attendance.monthly' => route('attendance.monthly', ['month' => $month]),
@@ -156,8 +163,7 @@ class AttendanceController extends Controller
             default => route('attendance.index'),
         };
 
-        return view('attendance.show', compact('attendance', 'breakTimes', 'backRoute'));
-
+        return view('attendance.show', compact('attendance', 'breakTimes', 'attendanceRequest', 'backRoute', 'showForm'));
     }
 
     public function requestEdit(AttendanceEditRequest $request, Attendance $attendance)
@@ -165,13 +171,27 @@ class AttendanceController extends Controller
         if ($attendance->user_id !== Auth::id()) {
             abort(403);
         }
+        // 既存の申請があれば削除
+        $attendance->attendanceRequest()?->delete();
+        $attendance->breakTimeRequests()?->delete();
 
-        AttendanceRequest::create([
+        // 勤怠修正申請を保存
+        $attendanceRequest = AttendanceRequest::create([
             'attendance_id' => $attendance->id,
             'requested_clock_in' => $request->clock_in,
             'requested_clock_out' => $request->clock_out,
             'requested_note' => $request->note,
         ]);
+
+        // 休憩時間も保存
+        if ($request->has('break_times')) {
+            foreach ($request->break_times as $break) {
+                $attendanceRequest->breakTimeRequests()->create([
+                    'break_start' => $attendance->date . ' ' . $break['start'],
+                    'break_end' => $break['end'] ? $attendance->date . ' ' . $break['end'] : null,
+                ]);
+            }
+        }
 
         return redirect()->route('attendance.show', $attendance)->with('message', '修正申請を送信しました');
     }
