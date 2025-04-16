@@ -99,6 +99,8 @@ MAIL_FROM_NAME="勤怠管理システム"
 
 ```bash
 # 1. Makefileによる初期設定
+$ git clone https://github.com/your-user/your-repo.git
+$ cd your-repo
 $ make init
 
 # 2. Laravel 初期設定（手動の場合）
