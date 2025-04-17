@@ -141,5 +141,4 @@ $ php artisan migrate --seed
 
 ---
 ## 💬 補足
-- 認証が必要なルートには `auth` ミドルウェア、管理者専用には `can:admin` を付与
 - デザインは Bootstrapベース、またはカスタムCSSで調整
